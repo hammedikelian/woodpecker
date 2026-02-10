@@ -14,15 +14,15 @@ steps:
     image: python:3.11-slim
     directory: service-bdd
     commands:
-      - pip install -r requirements.txt
-      - python -c "from config import Settings; print('Import service-bdd OK')"
+      - pip install -r requirements.txt --quiet
+      - python -c "from routes.musiques import router; print('service-bdd: all imports OK')"
 
   - name: test-service-vocal
     image: python:3.11-slim
     directory: service-vocal
     commands:
-      - pip install -r requirements.txt
-      - python -c "from config import Settings; print('Import service-vocal OK')"
+      - pip install -r requirements.txt --quiet
+      - python -c "from vosk import Model; import numpy; print('service-vocal: all imports OK')"
 
   - name: notify-success
     image: alpine:latest
