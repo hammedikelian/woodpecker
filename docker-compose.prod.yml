@@ -1,0 +1,168 @@
+# =============================================================================
+# DOCKER COMPOSE - PRODUCTION
+# =============================================================================
+# Woodpecker CI + Traefik (HTTPS) + Monitoring
+# Usage: docker compose -f docker-compose.prod.yml up -d
+# =============================================================================
+
+services:
+  # ===========================================================================
+  # TRAEFIK - Reverse Proxy avec HTTPS automatique
+  # ===========================================================================
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    restart: always
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      # Redirect HTTP to HTTPS
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-certs:/letsencrypt
+    networks:
+      - woodpecker-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN}`)"
+      - "traefik.http.routers.dashboard.tls=true"
+      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.middlewares=auth"
+      - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_AUTH}"
+
+  # ===========================================================================
+  # WOODPECKER SERVER
+  # ===========================================================================
+  woodpecker-server:
+    image: woodpeckerci/woodpecker-server:v3.0
+    container_name: woodpecker-server
+    restart: always
+    environment:
+      # Server config
+      - WOODPECKER_HOST=https://ci.${DOMAIN}
+      - WOODPECKER_OPEN=false
+      - WOODPECKER_ADMIN=${WOODPECKER_ADMIN}
+
+      # GitHub OAuth
+      - WOODPECKER_GITHUB=true
+      - WOODPECKER_GITHUB_CLIENT=${GITHUB_CLIENT_ID}
+      - WOODPECKER_GITHUB_SECRET=${GITHUB_CLIENT_SECRET}
+
+      # Agent secret
+      - WOODPECKER_AGENT_SECRET=${WOODPECKER_AGENT_SECRET}
+
+      # Database (PostgreSQL for production)
+      - WOODPECKER_DATABASE_DRIVER=postgres
+      - WOODPECKER_DATABASE_DATASOURCE=postgres://${DB_USER}:${DB_PASSWORD}@woodpecker-db:5432/${DB_NAME}?sslmode=disable
+
+      # Limits
+      - WOODPECKER_MAX_WORKFLOWS=5
+      - WOODPECKER_DEFAULT_CLONE_PLUGIN=woodpeckerci/plugin-git:v2.5.0
+    volumes:
+      - woodpecker-server-data:/var/lib/woodpecker/
+    depends_on:
+      woodpecker-db:
+        condition: service_healthy
+    networks:
+      - woodpecker-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.woodpecker.rule=Host(`ci.${DOMAIN}`)"
+      - "traefik.http.routers.woodpecker.tls=true"
+      - "traefik.http.routers.woodpecker.tls.certresolver=letsencrypt"
+      - "traefik.http.services.woodpecker.loadbalancer.server.port=8000"
+
+  # ===========================================================================
+  # WOODPECKER AGENT
+  # ===========================================================================
+  woodpecker-agent:
+    image: woodpeckerci/woodpecker-agent:v3.0
+    container_name: woodpecker-agent
+    restart: always
+    command: agent
+    privileged: true
+    environment:
+      - WOODPECKER_SERVER=woodpecker-server:9000
+      - WOODPECKER_AGENT_SECRET=${WOODPECKER_AGENT_SECRET}
+      - WOODPECKER_MAX_WORKFLOWS=3
+      - WOODPECKER_BACKEND=docker
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - woodpecker-server
+    networks:
+      - woodpecker-network
+
+  # ===========================================================================
+  # POSTGRESQL DATABASE (for Woodpecker)
+  # ===========================================================================
+  woodpecker-db:
+    image: postgres:16-alpine
+    container_name: woodpecker-db
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - woodpecker-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - woodpecker-network
+
+  # ===========================================================================
+  # BACKUP SERVICE (Daily backups)
+  # ===========================================================================
+  backup:
+    image: prodrigestivill/postgres-backup-local:16
+    container_name: woodpecker-backup
+    restart: always
+    environment:
+      - POSTGRES_HOST=woodpecker-db
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - SCHEDULE=@daily
+      - BACKUP_KEEP_DAYS=7
+      - BACKUP_KEEP_WEEKS=4
+      - BACKUP_KEEP_MONTHS=6
+    volumes:
+      - woodpecker-backups:/backups
+    depends_on:
+      - woodpecker-db
+    networks:
+      - woodpecker-network
+
+# =============================================================================
+# VOLUMES
+# =============================================================================
+volumes:
+  traefik-certs:
+  woodpecker-server-data:
+  woodpecker-db-data:
+  woodpecker-backups:
+
+# =============================================================================
+# NETWORKS
+# =============================================================================
+networks:
+  woodpecker-network:
+    driver: bridge

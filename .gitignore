@@ -20,6 +20,12 @@ vosk-model*/
 .env
 .env.local
 .env.woodpecker
+.env.prod
+
+# Production
+backups/
+*.sql
+*.sql.gz
 
 # IDE
 .idea/
