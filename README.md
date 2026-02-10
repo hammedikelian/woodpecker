@@ -1,6 +1,22 @@
 # Music Voice - Application Mobile de Musique par Commande Vocale
 
+[![CI Pipeline](https://ci.woodpecker-ci.org/api/badges/hammedikelian/woodpecker/status.svg)](https://ci.woodpecker-ci.org/hammedikelian/woodpecker)
+[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Application mobile Flutter contrôlée par commande vocale avec 2 services backend Python (FastAPI) et PostgreSQL, le tout conteneurisé avec Docker.
+
+## CI/CD Pipeline
+
+Notre pipeline CI/CD professionnel inclut :
+
+| Stage | Outils | Description |
+|-------|--------|-------------|
+| **Lint** | black, flake8, isort | Formatage et qualité du code |
+| **Security** | bandit, safety | Analyse de sécurité |
+| **Test** | pytest, coverage | Tests unitaires avec couverture |
+| **Build** | Docker | Construction des images |
 
 ## Architecture
 

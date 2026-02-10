@@ -1,8 +1,9 @@
 import json
-import wave
 import logging
-from vosk import Model, KaldiRecognizer
+import wave
+
 from config import settings
+from vosk import KaldiRecognizer, Model
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +101,7 @@ class SpeechToTextService:
             # Process in chunks
             chunk_size = 8000
             for i in range(0, len(audio_data), chunk_size):
-                chunk = audio_data[i:i + chunk_size]
+                chunk = audio_data[i : i + chunk_size]
                 if recognizer.AcceptWaveform(chunk):
                     result = json.loads(recognizer.Result())
                     if result.get("text"):

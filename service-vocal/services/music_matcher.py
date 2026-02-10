@@ -1,7 +1,8 @@
 import logging
-from typing import Optional, List, Dict, Any
-from rapidfuzz import fuzz, process
+from typing import Any, Dict, List, Optional
+
 from config import settings
+from rapidfuzz import fuzz, process
 
 logger = logging.getLogger(__name__)
 
@@ -13,9 +14,7 @@ class MusicMatcher:
         self.threshold = settings.fuzzy_threshold
 
     def find_best_match(
-        self,
-        query: str,
-        musiques: List[Dict[str, Any]]
+        self, query: str, musiques: List[Dict[str, Any]]
     ) -> Optional[Dict[str, Any]]:
         """
         Find the best matching music for a given query.
@@ -38,30 +37,23 @@ class MusicMatcher:
 
         for musique in musiques:
             # Calculate scores for different fields
-            titre_score = fuzz.token_set_ratio(
-                query_lower,
-                musique["titre"].lower()
-            )
-            artiste_score = fuzz.token_set_ratio(
-                query_lower,
-                musique["artiste"].lower()
-            )
+            titre_score = fuzz.token_set_ratio(query_lower, musique["titre"].lower())
+            artiste_score = fuzz.token_set_ratio(query_lower, musique["artiste"].lower())
 
             # Combined search: "artiste titre" or "titre artiste"
             combined1 = f"{musique['artiste']} {musique['titre']}".lower()
             combined2 = f"{musique['titre']} {musique['artiste']}".lower()
             combined_score = max(
                 fuzz.token_set_ratio(query_lower, combined1),
-                fuzz.token_set_ratio(query_lower, combined2)
+                fuzz.token_set_ratio(query_lower, combined2),
             )
 
             # Album score (lower weight)
             album_score = 0
             if musique.get("album"):
-                album_score = fuzz.token_set_ratio(
-                    query_lower,
-                    musique["album"].lower()
-                ) * 0.7  # Lower weight for album
+                album_score = (
+                    fuzz.token_set_ratio(query_lower, musique["album"].lower()) * 0.7
+                )  # Lower weight for album
 
             # Take the best score
             score = max(titre_score, artiste_score, combined_score, album_score)
@@ -87,10 +79,7 @@ class MusicMatcher:
         return None
 
     def find_matches(
-        self,
-        query: str,
-        musiques: List[Dict[str, Any]],
-        limit: int = 5
+        self, query: str, musiques: List[Dict[str, Any]], limit: int = 5
     ) -> List[Dict[str, Any]]:
         """
         Find multiple matching musics for a query.
@@ -110,14 +99,8 @@ class MusicMatcher:
         scored_musiques = []
 
         for musique in musiques:
-            titre_score = fuzz.token_set_ratio(
-                query_lower,
-                musique["titre"].lower()
-            )
-            artiste_score = fuzz.token_set_ratio(
-                query_lower,
-                musique["artiste"].lower()
-            )
+            titre_score = fuzz.token_set_ratio(query_lower, musique["titre"].lower())
+            artiste_score = fuzz.token_set_ratio(query_lower, musique["artiste"].lower())
             combined = f"{musique['artiste']} {musique['titre']}".lower()
             combined_score = fuzz.token_set_ratio(query_lower, combined)
 

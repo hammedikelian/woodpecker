@@ -1,7 +1,8 @@
-import psycopg2
-from psycopg2.extras import RealDictCursor
 from contextlib import contextmanager
+
+import psycopg2
 from config import settings
+from psycopg2.extras import RealDictCursor
 
 
 def get_connection():
@@ -11,7 +12,7 @@ def get_connection():
         port=settings.database_port,
         database=settings.database_name,
         user=settings.database_user,
-        password=settings.database_password
+        password=settings.database_password,
     )
 
 

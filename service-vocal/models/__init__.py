@@ -1,14 +1,17 @@
+from typing import Any, Dict, Optional
+
 from pydantic import BaseModel
-from typing import Optional, Dict, Any
 
 
 class RecognitionRequest(BaseModel):
     """Request model for audio recognition."""
+
     pass
 
 
 class RecognitionResponse(BaseModel):
     """Response model for audio recognition."""
+
     success: bool
     transcript: Optional[str] = None
     intent: str

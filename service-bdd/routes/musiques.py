@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException, Query
 from typing import List, Optional
-from models.musique import MusiqueResponse
+
 from database import get_db_cursor
+from fastapi import APIRouter, HTTPException, Query
+from models.musique import MusiqueResponse
 
 router = APIRouter(prefix="/musiques", tags=["musiques"])
 
@@ -24,7 +25,8 @@ def search_musiques(q: str = Query(..., min_length=1, description="Terme de rech
     """Recherche des musiques par titre ou artiste."""
     with get_db_cursor() as cursor:
         search_term = f"%{q.lower()}%"
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT id, titre, artiste, album, duree_secondes, fichier_audio, fichier_cover
             FROM musiques
             WHERE LOWER(titre) LIKE %s OR LOWER(artiste) LIKE %s OR LOWER(album) LIKE %s
@@ -35,7 +37,9 @@ def search_musiques(q: str = Query(..., min_length=1, description="Terme de rech
                     ELSE 3
                 END,
                 titre
-        """, (search_term, search_term, search_term, search_term, search_term))
+        """,
+            (search_term, search_term, search_term, search_term, search_term),
+        )
         results = cursor.fetchall()
     return [MusiqueResponse(**row) for row in results]
 
@@ -44,11 +48,14 @@ def search_musiques(q: str = Query(..., min_length=1, description="Terme de rech
 def get_musique(musique_id: int):
     """Récupère une musique par son ID."""
     with get_db_cursor() as cursor:
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT id, titre, artiste, album, duree_secondes, fichier_audio, fichier_cover
             FROM musiques
             WHERE id = %s
-        """, (musique_id,))
+        """,
+            (musique_id,),
+        )
         result = cursor.fetchone()
 
     if not result:

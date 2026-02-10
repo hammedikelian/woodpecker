@@ -1,6 +1,7 @@
-import httpx
 import logging
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
+
+import httpx
 from config import settings
 
 logger = logging.getLogger(__name__)
@@ -41,10 +42,7 @@ class BddClient:
         """Search musiques by query."""
         try:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
-                response = await client.get(
-                    f"{self.base_url}/musiques/search",
-                    params={"q": query}
-                )
+                response = await client.get(f"{self.base_url}/musiques/search", params={"q": query})
                 response.raise_for_status()
                 return response.json()
         except httpx.HTTPError as e:

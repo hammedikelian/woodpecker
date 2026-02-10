@@ -1,7 +1,7 @@
-import re
 import logging
-from typing import Tuple, Optional
+import re
 from enum import Enum
+from typing import Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -67,11 +67,38 @@ class CommandParser:
 
     # Words to remove to extract the music query
     COMMAND_WORDS = [
-        "joue", "jouer", "mets", "mettre", "lance", "lancer",
-        "je", "veux", "écouter", "ecouter", "la", "le", "les",
-        "un", "une", "de", "du", "des", "musique", "chanson",
-        "titre", "morceau", "s'il", "te", "plait", "plaît",
-        "play", "fais", "passe", "passer", "me", "moi"
+        "joue",
+        "jouer",
+        "mets",
+        "mettre",
+        "lance",
+        "lancer",
+        "je",
+        "veux",
+        "écouter",
+        "ecouter",
+        "la",
+        "le",
+        "les",
+        "un",
+        "une",
+        "de",
+        "du",
+        "des",
+        "musique",
+        "chanson",
+        "titre",
+        "morceau",
+        "s'il",
+        "te",
+        "plait",
+        "plaît",
+        "play",
+        "fais",
+        "passe",
+        "passer",
+        "me",
+        "moi",
     ]
 
     def parse(self, text: str) -> Tuple[Intent, Optional[str]]:
@@ -129,7 +156,7 @@ class CommandParser:
 
         for word in words:
             # Clean word of punctuation
-            clean_word = re.sub(r'[^\w\s]', '', word)
+            clean_word = re.sub(r"[^\w\s]", "", word)
             if clean_word and clean_word.lower() not in self.COMMAND_WORDS:
                 filtered_words.append(word)
 

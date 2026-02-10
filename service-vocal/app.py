@@ -1,16 +1,16 @@
+import io
+import logging
 import os
 import tempfile
-import logging
-from fastapi import FastAPI, UploadFile, File, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from pydub import AudioSegment
-import io
 
-from services.speech_to_text import SpeechToTextService
+from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from models import RecognitionResponse
+from pydub import AudioSegment
+from services.bdd_client import BddClient
 from services.command_parser import CommandParser, Intent
 from services.music_matcher import MusicMatcher
-from services.bdd_client import BddClient
-from models import RecognitionResponse
+from services.speech_to_text import SpeechToTextService
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="Service Vocal - Music Voice App",
     description="API pour la reconnaissance vocale et le traitement des commandes",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 app.add_middleware(
@@ -55,18 +55,14 @@ async def health_check():
     return {
         "status": "healthy" if stt_service else "degraded",
         "stt_service": "ready" if stt_service else "not ready",
-        "bdd_service": "connected" if bdd_healthy else "disconnected"
+        "bdd_service": "connected" if bdd_healthy else "disconnected",
     }
 
 
 @app.get("/")
 def root():
     """Root endpoint."""
-    return {
-        "service": "service-vocal",
-        "version": "1.0.0",
-        "endpoints": ["/health", "/recognize"]
-    }
+    return {"service": "service-vocal", "version": "1.0.0", "endpoints": ["/health", "/recognize"]}
 
 
 @app.post("/recognize", response_model=RecognitionResponse)
@@ -96,7 +92,7 @@ async def recognize_audio(audio: UploadFile = File(...)):
                     success=False,
                     transcript=None,
                     intent=Intent.UNKNOWN.value,
-                    error="No speech detected"
+                    error="No speech detected",
                 )
 
             # Parse command
@@ -114,14 +110,11 @@ async def recognize_audio(audio: UploadFile = File(...)):
                         transcript=transcript,
                         intent=intent.value,
                         musique=None,
-                        error=f"Aucune musique trouvée pour '{music_query}'"
+                        error=f"Aucune musique trouvée pour '{music_query}'",
                     )
 
             return RecognitionResponse(
-                success=True,
-                transcript=transcript,
-                intent=intent.value,
-                musique=musique
+                success=True, transcript=transcript, intent=intent.value, musique=musique
             )
 
         finally:
@@ -197,4 +190,5 @@ async def convert_to_wav(audio_content: bytes, filename: str) -> str:
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=5001)
