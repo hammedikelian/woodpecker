@@ -1,32 +1,36 @@
 when:
-  event: [push, pull_request, tag]
-  branch: [main, develop]
+  event:
+    - push
+    - pull_request
+    - tag
+  branch:
+    - main
+    - develop
 
 steps:
   - name: info
     image: alpine:latest
     commands:
-      - echo "Branch:" $CI_COMMIT_BRANCH
-      - echo "Commit:" $CI_COMMIT_SHA
-      - echo "Event:" $CI_PIPELINE_EVENT
+      - echo "=== Pipeline Info ==="
+      - echo "Branch = $CI_COMMIT_BRANCH"
+      - echo "Commit = $CI_COMMIT_SHA"
+      - echo "Event = $CI_PIPELINE_EVENT"
 
   - name: test-service-bdd
     image: python:3.11-slim
     directory: service-bdd
     commands:
-      - pip install -r requirements.txt --quiet
-      - python -c "from routes.musiques import router; print('service-bdd: all imports OK')"
+      - pip install --quiet -r requirements.txt
+      - python test_imports.py
 
   - name: test-service-vocal
     image: python:3.11-slim
     directory: service-vocal
     commands:
-      - pip install -r requirements.txt --quiet
-      - python -c "from vosk import Model; import numpy; print('service-vocal: all imports OK')"
+      - pip install --quiet -r requirements.txt
+      - python test_imports.py
 
-  - name: notify-success
+  - name: success
     image: alpine:latest
     commands:
-      - echo "Pipeline termine avec succes!"
-    when:
-      - status: success
+      - echo "=== Pipeline Success ==="
