@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: music_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: musicdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d musicdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - music_network
+
+  service-bdd:
+    build: ./service-bdd
+    container_name: music_service_bdd
+    environment:
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: musicdb
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
+    ports:
+      - "5002:5002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - music_network
+    restart: unless-stopped
+
+  service-vocal:
+    build: ./service-vocal
+    container_name: music_service_vocal
+    environment:
+      SERVICE_BDD_URL: http://service-bdd:5002
+      VOSK_MODEL_PATH: vosk-model-small-fr-0.22
+      FUZZY_THRESHOLD: 70
+    ports:
+      - "5001:5001"
+    depends_on:
+      - service-bdd
+    networks:
+      - music_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  music_network:
+    driver: bridge

@@ -1,0 +1,69 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Vosk model
+vosk-model*/
+*.zip
+
+# Environment
+.env
+.env.local
+.env.woodpecker
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Flutter
+music_voice_app/.dart_tool/
+music_voice_app/.packages
+music_voice_app/.pub-cache/
+music_voice_app/.pub/
+music_voice_app/build/
+music_voice_app/*.iml
+music_voice_app/.metadata
+
+# iOS
+music_voice_app/ios/Pods/
+music_voice_app/ios/.symlinks/
+music_voice_app/ios/Flutter/Flutter.framework
+music_voice_app/ios/Flutter/Flutter.podspec
+music_voice_app/ios/Flutter/Generated.xcconfig
+music_voice_app/ios/Flutter/app.flx
+music_voice_app/ios/Flutter/engine/
+music_voice_app/ios/ServiceDefinitions.json
+
+# Android
+music_voice_app/android/.gradle/
+music_voice_app/android/local.properties
+music_voice_app/android/*.iml
+music_voice_app/android/key.properties
+music_voice_app/android/**/*.keystore
+
+# macOS
+.DS_Store
+
+# Audio files (keep structure but not large files)
+*.mp3
+*.wav
+!music_voice_app/assets/musiques/.gitkeep
+!music_voice_app/assets/covers/.gitkeep
+
+# Docker
+.docker/
+
+# Logs
+*.log

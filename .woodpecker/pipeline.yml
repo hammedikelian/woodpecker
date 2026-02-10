@@ -1,0 +1,55 @@
+# Pipeline Woodpecker CI
+# Documentation: https://woodpecker-ci.org/docs/usage/pipeline-syntax
+
+when:
+  # Déclenche le pipeline sur ces événements
+  event: [push, pull_request, tag]
+  # Uniquement sur ces branches (optionnel)
+  branch: [main, develop]
+
+steps:
+  # Étape 1: Cloner et afficher les infos
+  info:
+    image: alpine:latest
+    commands:
+      - echo "Branch: ${CI_COMMIT_BRANCH}"
+      - echo "Commit: ${CI_COMMIT_SHA}"
+      - echo "Event: ${CI_PIPELINE_EVENT}"
+
+  # Étape 2: Test service-bdd
+  test-service-bdd:
+    image: python:3.11-slim
+    directory: service-bdd
+    commands:
+      - pip install -r requirements.txt
+      - echo "Tests service-bdd..."
+      # - pytest tests/ -v  # Décommente quand tu as des tests
+
+  # Étape 3: Test service-vocal
+  test-service-vocal:
+    image: python:3.11-slim
+    directory: service-vocal
+    commands:
+      - pip install -r requirements.txt
+      - echo "Tests service-vocal..."
+      # - pytest tests/ -v  # Décommente quand tu as des tests
+
+  # Étape 4: Build des images Docker
+  build-images:
+    image: docker:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    commands:
+      - docker build -t music-service-bdd:${CI_COMMIT_SHA} ./service-bdd
+      - docker build -t music-service-vocal:${CI_COMMIT_SHA} ./service-vocal
+    when:
+      event: [push, tag]
+      branch: main
+
+  # Étape 5: Notification succès
+  notify-success:
+    image: alpine:latest
+    commands:
+      - echo "Pipeline terminé avec succès!"
+    when:
+      status: success

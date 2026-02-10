@@ -1,0 +1,53 @@
+name: music_voice_app
+description: Application mobile de musique contrôlée par commande vocale
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management
+  provider: ^6.1.1
+
+  # HTTP client
+  http: ^1.2.0
+  http_parser: ^4.0.2
+
+  # Audio recording
+  record: ^5.2.0
+  permission_handler: ^11.2.0
+
+  # Audio playback
+  just_audio: ^0.9.36
+  audio_session: ^0.1.25
+
+  # Text-to-Speech
+  flutter_tts: ^3.8.5
+
+  # Path utilities
+  path_provider: ^2.1.2
+  path: ^1.8.3
+
+  # UI components
+  cupertino_icons: ^1.0.6
+
+dependency_overrides:
+  record_linux: ^1.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/musiques/
+    - assets/covers/
