@@ -60,7 +60,8 @@ steps:
       DATABASE_PASSWORD: test
     commands:
       - pip install --quiet -r requirements.txt pytest pytest-cov pytest-asyncio httpx
-      - python -m pytest tests/ -v --tb=short --cov=. --cov-report=term-missing || python test_imports.py
+      - echo "=== Running tests with 70% coverage minimum ==="
+      - python -m pytest tests/ -v --tb=short --cov=. --cov-report=term-missing --cov-fail-under=70
     depends_on:
       - security
 
@@ -69,7 +70,8 @@ steps:
     directory: service-vocal
     commands:
       - pip install --quiet -r requirements.txt pytest pytest-cov
-      - python -m pytest tests/ -v --tb=short --cov=. --cov-report=term-missing || python test_imports.py
+      - echo "=== Running tests with 70% coverage minimum ==="
+      - python -m pytest tests/ -v --tb=short --cov=. --cov-report=term-missing --cov-fail-under=70
     depends_on:
       - security
 
