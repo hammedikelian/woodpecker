@@ -1,0 +1,14 @@
+---
+title: Music Voice - Database Schema
+---
+erDiagram
+    musiques {
+        SERIAL id PK "Auto-increment"
+        VARCHAR_255 titre "NOT NULL"
+        VARCHAR_255 artiste "NOT NULL"
+        VARCHAR_255 album "Nullable"
+        INTEGER duree_secondes "NOT NULL"
+        VARCHAR_255 fichier_audio "NOT NULL"
+        VARCHAR_255 fichier_cover "Nullable"
+        TIMESTAMP created_at "DEFAULT NOW()"
+    }

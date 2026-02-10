@@ -1,0 +1,46 @@
+@startuml Music Voice Database Schema
+
+!theme plain
+skinparam linetype ortho
+skinparam roundcorner 10
+skinparam class {
+    BackgroundColor White
+    BorderColor #2C3E50
+    ArrowColor #2C3E50
+    FontName Arial
+    FontSize 12
+}
+
+title Music Voice - Database Schema
+
+package "PostgreSQL Database" {
+
+    entity "musiques" as musiques {
+        * **id** : SERIAL <<PK>>
+        --
+        * titre : VARCHAR(255)
+        * artiste : VARCHAR(255)
+        album : VARCHAR(255) <<nullable>>
+        * duree_secondes : INTEGER
+        * fichier_audio : VARCHAR(255)
+        fichier_cover : VARCHAR(255) <<nullable>>
+        created_at : TIMESTAMP
+    }
+
+}
+
+note right of musiques
+    **Indexes:**
+    - idx_musiques_titre (LOWER(titre))
+    - idx_musiques_artiste (LOWER(artiste))
+    - idx_musiques_album (LOWER(album))
+
+    **Constraints:**
+    - id: Primary Key, Auto-increment
+    - titre: NOT NULL
+    - artiste: NOT NULL
+    - duree_secondes: NOT NULL
+    - fichier_audio: NOT NULL
+end note
+
+@enduml
