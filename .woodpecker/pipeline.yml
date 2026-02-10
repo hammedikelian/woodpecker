@@ -15,14 +15,14 @@ steps:
     directory: service-bdd
     commands:
       - pip install -r requirements.txt
-      - echo "Tests service-bdd OK"
+      - python -c "import app; print('Import service-bdd OK')"
 
   - name: test-service-vocal
     image: python:3.11-slim
     directory: service-vocal
     commands:
       - pip install -r requirements.txt
-      - echo "Tests service-vocal OK"
+      - python -c "import app; print('Import service-vocal OK')"
 
   - name: notify-success
     image: alpine:latest
