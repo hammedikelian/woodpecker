@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(openssl rand:*)",
+      "Bash(docker-compose:*)",
+      "Bash(docker info)",
+      "Bash(docker compose:*)",
+      "Bash(docker pull:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker logs:*)",
+      "Bash(docker exec:*)",
+      "Bash(docker stop:*)",
+      "Bash(docker rm:*)",
+      "Bash(brew install:*)",
+      "Bash(sudo mv:*)",
+      "Bash(sudo chmod:*)",
+      "Bash(woodpecker-agent:*)",
+      "Bash(pkill:*)",
+      "Bash(brew list:*)",
+      "Bash(curl:*)",
+      "Bash(python3:*)",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git pull:*)",
+      "Bash(git checkout:*)",
+      "Bash(git rebase:*)",
+      "Bash(GIT_EDITOR=true git rebase:*)"
+    ]
+  }
+}
