@@ -15,14 +15,14 @@ steps:
     directory: service-bdd
     commands:
       - pip install -r requirements.txt
-      - python -c "import numpy; print('Import service-bdd OK')"
+      - python -c "from config import Settings; print('Import service-bdd OK')"
 
   - name: test-service-vocal
     image: python:3.11-slim
     directory: service-vocal
     commands:
       - pip install -r requirements.txt
-      - python -c "import numpy; print('Import service-vocal OK')"
+      - python -c "from config import Settings; print('Import service-vocal OK')"
 
   - name: notify-success
     image: alpine:latest
